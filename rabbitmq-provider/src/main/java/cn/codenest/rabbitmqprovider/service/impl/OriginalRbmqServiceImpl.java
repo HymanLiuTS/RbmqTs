@@ -39,6 +39,7 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
         factory.setConnectionTimeout(this.rabbitMqTimeOut);
         factory.setUsername(this.rabbitMqUsername);
         factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
         Connection connection = null;
         try {
             connection = factory.newConnection();

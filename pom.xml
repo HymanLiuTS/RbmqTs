@@ -5,10 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.codenest</groupId>
-    <artifactId>springbootts</artifactId>
+    <artifactId>rbmqts</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1</version>
-    <name>springbootts</name>
+    <name>rbmqts</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

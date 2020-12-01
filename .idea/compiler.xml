@@ -6,26 +6,20 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="rabbitmq-provider" />
         <module name="rabbitmq-consumer" />
+        <module name="rabbitmq-provider" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="datasource" target="1.8" />
-      <module name="javats" target="8" />
-      <module name="mybatists" target="1.8" />
       <module name="rabbitmq-consumer" target="1.8" />
       <module name="rabbitmq-provider" target="1.8" />
-      <module name="RbmqTs" target="1.5" />
-      <module name="redists" target="1.8" />
+      <module name="rbmqts" target="1.5" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="mybatists" options="-parameters" />
       <module name="rabbitmq-consumer" options="-parameters" />
       <module name="rabbitmq-provider" options="-parameters" />
-      <module name="redists" options="-parameters" />
     </option>
   </component>
   <component name="TypeScriptCompiler">

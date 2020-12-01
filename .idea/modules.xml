@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/RbmqTs.iml" filepath="$PROJECT_DIR$/RbmqTs.iml" />
       <module fileurl="file://$PROJECT_DIR$/rabbitmq-consumer/rabbitmq-consumer.iml" filepath="$PROJECT_DIR$/rabbitmq-consumer/rabbitmq-consumer.iml" />
       <module fileurl="file://$PROJECT_DIR$/rabbitmq-provider/rabbitmq-provider.iml" filepath="$PROJECT_DIR$/rabbitmq-provider/rabbitmq-provider.iml" />
+      <module fileurl="file://$PROJECT_DIR$/rbmqts.iml" filepath="$PROJECT_DIR$/rbmqts.iml" />
     </modules>
   </component>
 </project>
