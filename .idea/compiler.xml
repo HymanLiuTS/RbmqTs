@@ -16,8 +16,8 @@
       <module name="mybatists" target="1.8" />
       <module name="rabbitmq-consumer" target="1.8" />
       <module name="rabbitmq-provider" target="1.8" />
+      <module name="RbmqTs" target="1.5" />
       <module name="redists" target="1.8" />
-      <module name="springbootts" target="1.5" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
