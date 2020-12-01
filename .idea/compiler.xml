@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="rabbitmq-provider" />
+        <module name="rabbitmq-consumer" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="datasource" target="1.8" />
+      <module name="javats" target="8" />
+      <module name="mybatists" target="1.8" />
+      <module name="rabbitmq-consumer" target="1.8" />
+      <module name="rabbitmq-provider" target="1.8" />
+      <module name="redists" target="1.8" />
+      <module name="springbootts" target="1.5" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="mybatists" options="-parameters" />
+      <module name="rabbitmq-consumer" options="-parameters" />
+      <module name="rabbitmq-provider" options="-parameters" />
+      <module name="redists" options="-parameters" />
+    </option>
+  </component>
+  <component name="TypeScriptCompiler">
+    <option name="recompileOnChanges" value="true" />
+    <option name="typeScriptServiceDirectory" value="$USER_HOME$/AppData/Roaming/npm/node_modules/typescript" />
+    <option name="versionType" value="SERVICE_DIRECTORY" />
+  </component>
+</project>
