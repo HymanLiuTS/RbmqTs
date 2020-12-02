@@ -24,7 +24,8 @@ public class ServiceTest {
 
     @Test
     public void sendMsgTest() throws IOException {
-        originalRbmqService.sendMsg("Hello World");
+        originalRbmqService.sendDefaultDirectMsg();
+        originalRbmqService.sendCustomerDirectMsg();
     }
 
 }

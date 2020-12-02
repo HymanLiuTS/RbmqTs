@@ -11,5 +11,6 @@ import java.util.concurrent.TimeoutException;
  * @date : 2020-12-01 12:29
  **/
 public interface OriginalRbmqService {
-    public void sendMsg(String msg) throws IOException;
+    public void sendDefaultDirectMsg() throws IOException;
+    public void sendCustomerDirectMsg() throws IOException;
 }

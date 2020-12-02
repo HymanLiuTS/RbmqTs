@@ -11,6 +11,7 @@ import java.io.IOException;
  **/
 public interface OriginalRbmqService {
 
-    public void getMsg() throws IOException;
+    public void getDefaultDirectMsg() throws IOException;
+    public void getCustomerDirectMsg() throws IOException;
 
 }
