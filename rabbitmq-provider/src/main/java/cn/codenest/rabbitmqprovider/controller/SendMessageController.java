@@ -50,4 +50,10 @@ public class SendMessageController {
         return "OK";
     }
 
+    @GetMapping("/sendFanoutMsg")
+    public String sendFanoutMsg() throws IOException {
+        originalRbmqService.sendFanoutMsg();
+        return "OK";
+    }
+
 }

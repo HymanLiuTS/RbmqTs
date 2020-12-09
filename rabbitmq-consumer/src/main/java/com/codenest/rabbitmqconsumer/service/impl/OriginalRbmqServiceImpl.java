@@ -143,6 +143,39 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
     }
 
     @Override
+    public void getFanoutInfoMsg() throws IOException {
+        // 创建连接和信道
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+
+            channel.exchangeDeclare("fanout-exchange", "fanout", true, false, null);
+            for (int i = 0; i < 5; i++) {
+                String queueName = "fanout_queue" + i;
+                Consumer consumer = new MyConsumer(queueName, channel);
+                channel.queueDeclare(queueName, true, false, false, null);
+                channel.queueBind(queueName, "fanout-exchange", "");
+                channel.basicConsume(queueName, false, consumer);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                //connection.close();
+            }
+        }
+    }
+
+    @Override
     public void getTopicErrorMsg() throws IOException {
         // 创建连接和信道
         ConnectionFactory factory = new ConnectionFactory();

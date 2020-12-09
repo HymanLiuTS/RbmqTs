@@ -158,4 +158,33 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             }
         }
     }
+
+    @Override
+    public void sendFanoutMsg() throws IOException {
+        // 创建连接和信道
+        String msg = "fanout images message";
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.exchangeDeclare("fanout-exchange", "fanout", true, false, null);
+            AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().build();
+            channel.basicPublish("fanout-exchange", "", bpro, msg.getBytes("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                connection.close();
+            }
+        }
+    }
 }

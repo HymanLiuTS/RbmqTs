@@ -27,6 +27,7 @@ public class MySmartLifecycle implements SmartLifecycle {
             originalRbmqService.getCustomerDirectMsg();
             originalRbmqService.getTopicErrorMsg();
             originalRbmqService.getTopicInfoMsg();
+            originalRbmqService.getFanoutInfoMsg();
         } catch (IOException e) {
             e.printStackTrace();
         }

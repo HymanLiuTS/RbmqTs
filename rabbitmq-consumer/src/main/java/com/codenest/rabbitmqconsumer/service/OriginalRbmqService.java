@@ -19,4 +19,6 @@ public interface OriginalRbmqService {
 
     public void getTopicInfoMsg() throws IOException;
 
+    public void getFanoutInfoMsg() throws IOException;
+
 }
