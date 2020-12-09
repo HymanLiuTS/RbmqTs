@@ -3,6 +3,7 @@ package com.codenest.rabbitmqconsumer.service.impl;
 import com.codenest.rabbitmqconsumer.service.OriginalRbmqService;
 import com.rabbitmq.client.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
@@ -244,6 +245,10 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             //参数multiple表示是否确认其他消息，如果设置成true，则改消费者确认成功改消息后，会一并确认其他所有消息
             if (this.channel != null) {
                 this.channel.basicAck(envelope.getDeliveryTag(), false);
+            }
+            String rp = properties.getReplyTo();
+            if (this.channel != null && StringUtils.isEmpty(rp) == false) {
+                this.channel.basicPublish("", rp, properties, "我收到啦！".getBytes());
             }
 
         }

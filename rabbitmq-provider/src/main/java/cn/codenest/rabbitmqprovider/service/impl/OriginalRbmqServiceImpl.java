@@ -112,13 +112,45 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
                     .build();
             //exchange设置空字符串，表明使用默认的交换机，默认名称AMQP default
             channel.basicPublish("hello-exchange", "hello-channel", bpro, msg.getBytes("UTF-8"));
+            channel.basicConsume(replyQueueName, true, new Consumer() {
+                @Override
+                public void handleConsumeOk(String consumerTag) {
+
+                }
+
+                @Override
+                public void handleCancelOk(String consumerTag) {
+
+                }
+
+                @Override
+                public void handleCancel(String consumerTag) throws IOException {
+
+                }
+
+                @Override
+                public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
+
+                }
+
+                @Override
+                public void handleRecoverOk(String consumerTag) {
+
+                }
+
+                @Override
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                    String msg=new String(body);
+                    System.out.println(String.format("%s: %s", envelope.getDeliveryTag(), msg));
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
             e.printStackTrace();
         } finally {
             if (connection != null && connection.isOpen()) {
-                connection.close();
+                //connection.close();
             }
         }
     }
