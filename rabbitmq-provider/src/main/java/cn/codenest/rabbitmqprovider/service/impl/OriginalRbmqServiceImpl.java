@@ -146,7 +146,8 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             channel.queueBind("error", "topic-exchange", "*.error");
             AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().build();
             channel.basicPublish("topic-exchange", "info.error", bpro, error.getBytes("UTF-8"));
-            //channel.basicPublish("topic-exchange", "info", bpro, info.getBytes("UTF-8"));
+            //这里路由键中点不能少
+            channel.basicPublish("topic-exchange", "info.", bpro, info.getBytes("UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
