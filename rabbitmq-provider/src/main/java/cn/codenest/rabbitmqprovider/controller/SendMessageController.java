@@ -44,5 +44,10 @@ public class SendMessageController {
         return "OK";
     }
 
+    @GetMapping("/sendTopicMsg")
+    public String sendTopicMsg() throws IOException {
+        originalRbmqService.sendTopicMsg();
+        return "OK";
+    }
 
 }

@@ -100,7 +100,7 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
         try {
             connection = factory.newConnection();
             Channel channel = connection.createChannel();
-            Consumer consumer = new MyConsumer(channel);
+            Consumer consumer = new MyConsumer("hello-queue", channel);
             //通过自创建的直连交换机获取消息
             channel.exchangeDeclare("hello-exchange", "direct", true, false, null);
             channel.queueDeclare("hello-queue", true, false, false, null);
@@ -117,17 +117,70 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
 
     }
 
+    @Override
+    public void getTopicInfoMsg() throws IOException {
+        // 创建连接和信道
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            //通过自创建的直连交换机获取消息
+            channel.basicConsume("info", true, new MyConsumer("info", null));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                //connection.close();
+            }
+        }
+    }
+
+    @Override
+    public void getTopicErrorMsg() throws IOException {
+        // 创建连接和信道
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            //通过自创建的直连交换机获取消息
+            channel.basicConsume("error", false, new MyConsumer("error", channel));
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                //connection.close();
+            }
+        }
+    }
+
     public class MyConsumer implements Consumer {
+
+        String queue;
 
         Channel channel;
 
-        public MyConsumer(Channel channel) {
+        public MyConsumer(String queue, Channel channel) {
+            this.queue = queue;
             this.channel = channel;
         }
 
         @Override
         public void handleConsumeOk(String consumerTag) {
-            System.out.println(consumerTag);
+            System.out.println(consumerTag + "handleConsumeOk");
         }
 
         @Override
@@ -153,10 +206,13 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
         @Override
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
             String hello=new String(body);
-            System.out.println(hello);
-            System.out.println("begin sleep");
-            System.out.println(envelope.getDeliveryTag());
-            System.out.println("end sleep");
+            System.out.println(String.format("%s - %s: %s", queue, envelope.getDeliveryTag(), hello));
+            //如果是自动确认，不能调用channel.basicAck，所以需要设置channel为null
+            //参数multiple表示是否确认其他消息，如果设置成true，则改消费者确认成功改消息后，会一并确认其他所有消息
+            if (this.channel != null) {
+                this.channel.basicAck(envelope.getDeliveryTag(), false);
+            }
+
         }
     }
 

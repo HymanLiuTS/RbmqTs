@@ -118,7 +118,42 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             e.printStackTrace();
         } finally {
             if (connection != null && connection.isOpen()) {
-                //connection.close();
+                connection.close();
+            }
+        }
+    }
+
+    @Override
+    public void sendTopicMsg() throws IOException {
+        // 创建连接和信道
+        String error = "error message";
+        String info = "info message";
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.exchangeDeclare("topic-exchange", "topic", true, false, null);
+            channel.queueDeclare("info", true, false, false, null);
+            channel.queueBind("info", "topic-exchange", "info.*");
+            channel.queueDeclare("error", true, false, false, null);
+            channel.queueBind("error", "topic-exchange", "*.error");
+            AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().build();
+            channel.basicPublish("topic-exchange", "info.error", bpro, error.getBytes("UTF-8"));
+            //channel.basicPublish("topic-exchange", "info", bpro, info.getBytes("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                connection.close();
             }
         }
     }

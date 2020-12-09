@@ -13,4 +13,5 @@ import java.util.concurrent.TimeoutException;
 public interface OriginalRbmqService {
     public void sendDefaultDirectMsg() throws IOException;
     public void sendCustomerDirectMsg() throws IOException;
+    public void sendTopicMsg() throws IOException;
 }

@@ -24,7 +24,9 @@ public class MySmartLifecycle implements SmartLifecycle {
     public void start() {
         try {
             originalRbmqService.getDefaultDirectMsg();
-            //originalRbmqService.getCustomerDirectMsg();
+            originalRbmqService.getCustomerDirectMsg();
+            originalRbmqService.getTopicErrorMsg();
+            originalRbmqService.getTopicInfoMsg();
         } catch (IOException e) {
             e.printStackTrace();
         }
