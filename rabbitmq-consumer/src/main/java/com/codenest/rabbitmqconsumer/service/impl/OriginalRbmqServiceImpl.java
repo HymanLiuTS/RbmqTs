@@ -244,6 +244,7 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             //如果是自动确认，不能调用channel.basicAck，所以需要设置channel为null
             //参数multiple表示是否确认其他消息，如果设置成true，则改消费者确认成功改消息后，会一并确认其他所有消息
             if (this.channel != null) {
+                //在手动确认模式下，如果不手动确认，后面该消费者将不会收到后续的消息，消息会一直阻塞到队列里
                 this.channel.basicAck(envelope.getDeliveryTag(), false);
             }
             String rp = properties.getReplyTo();

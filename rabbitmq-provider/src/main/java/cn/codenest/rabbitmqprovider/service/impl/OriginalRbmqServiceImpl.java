@@ -39,12 +39,17 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
         factory.setPassword(this.rabbitMqPassword);
         factory.setVirtualHost("/");
         Connection connection = null;
+        Channel channel = null;
         try {
             //用来追踪发送失败的消息
             ConcurrentHashSet delever_failed_msgs = new ConcurrentHashSet();
             connection = factory.newConnection();
-            Channel channel = connection.createChannel();
+            channel = connection.createChannel();
+            /*方法一  开启事务*/
+            channel.txSelect();
+            /*方法二  使用发送->确认模式*/
             channel.confirmSelect();
+            /*增加一个确认的监听器，收到ack时会调用监听器中注册的回调函数*/
             channel.addConfirmListener(new ConfirmListener() {
 
                 @Override
@@ -60,28 +65,22 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
                     System.out.println("handleNack deliveryTag=" + deliveryTag);
                 }
             });
-            String collectionId = UUID.randomUUID().toString();
-            System.out.println("collectionId=" + collectionId);
-            //这里可以生成一个用于接受消费者处理后消息的队列，传递到消费者处
-            String replyQueueName = channel.queueDeclare().getQueue();
-            // 存入回调队列名与collectionId
-            AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().correlationId(collectionId).replyTo(replyQueueName)
-                    .build();
-            //exchange设置空字符串，表明使用默认的交换机，默认名称AMQP default
-
+            /*bpro可以附加一些其他信息，比如在rpc调用框架中，可以把通过replayto把等待接收的队列名称放上去*/
+            AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().build();
             for (int i = 0; i < 3; i++) {
                 delever_failed_msgs.add(Convert.toLong(i + 1));
+                //exchange设置空字符串，表明使用默认的交换机，默认名称AMQP default
                 channel.basicPublish("", "defaultqueue", bpro, msg.getBytes("UTF-8"));
+                 /* 等待接受ack*/
                 channel.waitForConfirms();
             }
             System.out.println(JSONUtil.toJsonStr(delever_failed_msgs));
-
-        } catch (IOException e) {
+            /* 提交事务 */
+            channel.txCommit();
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+             /* 回滚事务 */
+            channel.txRollback();
         } finally {
             if (connection != null && connection.isOpen()) {
                 connection.close();
@@ -105,12 +104,12 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             connection = factory.newConnection();
             Channel channel = connection.createChannel();
             channel.exchangeDeclare("hello-exchange", "direct", true, false, null);
+            //创建一个默认的私有队列，并获取名称，用于接受消费者发送过来的回执消息
             String replyQueueName = channel.queueDeclare().getQueue();
             String collectionId = UUID.randomUUID().toString();
             // 存入回调队列名与collectionId
             AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().correlationId(collectionId).replyTo(replyQueueName)
                     .build();
-            //exchange设置空字符串，表明使用默认的交换机，默认名称AMQP default
             channel.basicPublish("hello-exchange", "hello-channel", bpro, msg.getBytes("UTF-8"));
             channel.basicConsume(replyQueueName, true, new Consumer() {
                 @Override
