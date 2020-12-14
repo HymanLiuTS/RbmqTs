@@ -110,7 +110,9 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             // 存入回调队列名与collectionId
             AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().correlationId(collectionId).replyTo(replyQueueName)
                     .build();
-            channel.basicPublish("hello-exchange", "hello-channel", bpro, msg.getBytes("UTF-8"));
+            channel.queueDeclare("hello-queue", true, false, false, null);
+            channel.queueBind("hello-queue", "hello-exchange", "");
+            channel.basicPublish("hello-exchange", "", bpro, msg.getBytes("UTF-8"));
             channel.basicConsume(replyQueueName, true, new Consumer() {
                 @Override
                 public void handleConsumeOk(String consumerTag) {
@@ -208,6 +210,74 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             channel.exchangeDeclare("fanout-exchange", "fanout", true, false, null);
             AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().build();
             channel.basicPublish("fanout-exchange", "", bpro, msg.getBytes("UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                connection.close();
+            }
+        }
+    }
+
+    @Override
+    public void sendClusterMsg() throws IOException, TimeoutException {
+        // 创建连接和信道
+        String msg = "cluster message";
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost("48.92.2.151");
+        factory.setPort(5681);
+        factory.setConnectionTimeout(30000);
+        factory.setUsername("admin");
+        factory.setPassword("123");
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            channel.exchangeDeclare("cluster-exchange", "direct", true, false, null);
+            //创建一个默认的私有队列，并获取名称，用于接受消费者发送过来的回执消息
+            String replyQueueName = channel.queueDeclare().getQueue();
+            String collectionId = UUID.randomUUID().toString();
+            // 存入回调队列名与collectionId
+            AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().correlationId(collectionId).replyTo(replyQueueName)
+                    .build();
+            channel.queueDeclare("cluster-queue", true, false, false, null);
+            channel.queueBind("cluster-queue", "cluster-exchange", "");
+            channel.basicPublish("cluster-exchange", "", bpro, msg.getBytes("UTF-8"));
+            channel.basicConsume(replyQueueName, true, new Consumer() {
+                @Override
+                public void handleConsumeOk(String consumerTag) {
+
+                }
+
+                @Override
+                public void handleCancelOk(String consumerTag) {
+
+                }
+
+                @Override
+                public void handleCancel(String consumerTag) throws IOException {
+
+                }
+
+                @Override
+                public void handleShutdownSignal(String consumerTag, ShutdownSignalException sig) {
+
+                }
+
+                @Override
+                public void handleRecoverOk(String consumerTag) {
+
+                }
+
+                @Override
+                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+                    String msg=new String(body);
+                    System.out.println(String.format("%s: %s", envelope.getDeliveryTag(), msg));
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {

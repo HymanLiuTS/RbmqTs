@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author ：Hyman
@@ -53,6 +54,12 @@ public class SendMessageController {
     @GetMapping("/sendFanoutMsg")
     public String sendFanoutMsg() throws IOException {
         originalRbmqService.sendFanoutMsg();
+        return "OK";
+    }
+
+    @GetMapping("/sendClusterMsg")
+    public String sendClusterMsg() throws IOException, TimeoutException {
+        originalRbmqService.sendClusterMsg();
         return "OK";
     }
 

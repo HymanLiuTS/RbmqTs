@@ -1,6 +1,7 @@
 package cn.codenest.rabbitmqprovider.service;
 
 import java.io.IOException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * <h3>springbootts</h3>
@@ -14,4 +15,5 @@ public interface OriginalRbmqService {
     public void sendCustomerDirectMsg() throws IOException;
     public void sendTopicMsg() throws IOException;
     public void sendFanoutMsg() throws IOException;
+    public void sendClusterMsg() throws IOException, TimeoutException;
 }
