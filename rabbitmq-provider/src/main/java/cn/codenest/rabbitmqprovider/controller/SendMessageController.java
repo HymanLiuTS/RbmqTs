@@ -1,11 +1,13 @@
 package cn.codenest.rabbitmqprovider.controller;
 
 import cn.codenest.rabbitmqprovider.service.OriginalRbmqService;
+import cn.codenest.rabbitmqprovider.service.impl.SpringRbmqServiceImpl;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -21,17 +23,11 @@ import java.util.concurrent.TimeoutException;
 @RestController
 public class SendMessageController {
 
-    int i = 0;
-
-    @Autowired
-    RabbitTemplate rabbitTemplate;  //使用RabbitTemplate,这提供了接收/发送等等方法
-
-    @Autowired
-    @Qualifier(("TestDirectExchange"))
-    DirectExchange testDirectExchange;
-
     @Autowired
     OriginalRbmqService originalRbmqService;
+
+    @Autowired
+    SpringRbmqServiceImpl springRbmqService;
 
     @GetMapping("/sendDefaultDirectMessage")
     public String sendDefaultDirectMessage() throws IOException {
@@ -66,6 +62,12 @@ public class SendMessageController {
     @GetMapping("/sendExpireMessage")
     public String sendExpireMessage() throws IOException, TimeoutException {
         originalRbmqService.sendExpireMessage();
+        return "OK";
+    }
+
+    @GetMapping("/sendMsg/{type}")
+    public String sendMsg(@PathVariable Integer type) throws IOException, TimeoutException {
+        springRbmqService.sendMsg(type);
         return "OK";
     }
 

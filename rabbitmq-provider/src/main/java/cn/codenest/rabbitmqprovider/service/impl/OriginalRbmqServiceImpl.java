@@ -27,7 +27,7 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
     private String rabbitMqUsername = "guest";
     private String rabbitMqPassword = "guest";
     private Integer rabbitMqPort = 5672;
-    private Integer rabbitMqTimeOut = 10;
+    private Integer rabbitMqTimeOut = 10000;
 
     @Override
     public void sendDefaultDirectMsg() throws IOException {

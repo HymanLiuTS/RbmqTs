@@ -14,7 +14,7 @@ import java.util.Map;
  * @version: $
  */
 @Component
-@RabbitListener(queues = "TestDirectQueue1")//监听的队列名称 TestDirectQueue
+@RabbitListener(queues ={"TestDirectQueue","TestDirectQueue1","TestDirectQueue2"} )//监听的队列名称 TestDirectQueue
 public class DirectReceiver {
 
     @RabbitHandler
