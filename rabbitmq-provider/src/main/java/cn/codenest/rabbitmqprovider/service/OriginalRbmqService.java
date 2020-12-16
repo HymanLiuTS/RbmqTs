@@ -16,4 +16,5 @@ public interface OriginalRbmqService {
     public void sendTopicMsg() throws IOException;
     public void sendFanoutMsg() throws IOException;
     public void sendClusterMsg() throws IOException, TimeoutException;
+    public void sendExpireMessage() throws IOException, TimeoutException;
 }

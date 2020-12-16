@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author ：Hyman
@@ -172,6 +175,49 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
         } finally {
             if (connection != null && connection.isOpen()) {
                 //connection.close();
+            }
+        }
+    }
+
+    @Override
+    public void deployedDLXQueue() throws IOException {
+        // 创建连接和信道
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            // 声明一个普通的交换机 和 队列 以及路由
+            String exchangeName = "test_dlx_exchange";
+            String routingKey = "dlx.#";
+            String queueName = "test_dlx_queue";
+
+            channel.exchangeDeclare(exchangeName, "topic", true, false, null);
+            //指定死信发送的Exchange
+            Map<String, Object> agruments = new HashMap<String, Object>();
+            agruments.put("x-dead-letter-exchange", "dlx.exchange");
+            //这个agruments属性，要设置到声明队列上
+            channel.queueDeclare(queueName, true, false, false, agruments);
+            channel.queueBind(queueName, exchangeName, routingKey);
+
+            //要进行死信队列的声明
+            channel.exchangeDeclare("dlx.exchange", "topic", true, false, null);
+            channel.queueDeclare("dlx.queue", true, false, false, null);
+            channel.queueBind("dlx.queue", "dlx.exchange", "#");
+            Consumer consumer = new MyConsumer(queueName, channel);
+            channel.basicConsume(queueName, true, consumer);
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                connection.close();
             }
         }
     }

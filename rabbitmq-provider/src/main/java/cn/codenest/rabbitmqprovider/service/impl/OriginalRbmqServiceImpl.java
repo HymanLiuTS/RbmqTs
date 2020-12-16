@@ -8,6 +8,8 @@ import com.rabbitmq.client.*;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -226,8 +228,8 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
         // 创建连接和信道
         String msg = "cluster message";
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("48.92.2.151");
-        factory.setPort(5681);
+        factory.setHost("48.92.72.15");
+        factory.setPort(5682);
         factory.setConnectionTimeout(30000);
         factory.setUsername("admin");
         factory.setPassword("123");
@@ -243,7 +245,8 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
             // 存入回调队列名与collectionId
             AMQP.BasicProperties bpro = new AMQP.BasicProperties().builder().correlationId(collectionId).replyTo(replyQueueName)
                     .build();
-            channel.queueDeclare("cluster-queue", true, false, false, null);
+            Map<String, Object> arguments = new HashMap<>();
+            channel.queueDeclare("cluster-queue", true, false, false, arguments);
             channel.queueBind("cluster-queue", "cluster-exchange", "");
             channel.basicPublish("cluster-exchange", "", bpro, msg.getBytes("UTF-8"));
             channel.basicConsume(replyQueueName, true, new Consumer() {
@@ -278,6 +281,43 @@ public class OriginalRbmqServiceImpl implements OriginalRbmqService {
                     System.out.println(String.format("%s: %s", envelope.getDeliveryTag(), msg));
                 }
             });
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null && connection.isOpen()) {
+                connection.close();
+            }
+        }
+    }
+
+    @Override
+    public void sendExpireMessage() throws IOException, TimeoutException {
+        // 创建连接和信道
+        ConnectionFactory factory = new ConnectionFactory();
+        factory.setHost(this.rabbitMqHost);
+        factory.setPort(this.rabbitMqPort);
+        factory.setConnectionTimeout(this.rabbitMqTimeOut);
+        factory.setUsername(this.rabbitMqUsername);
+        factory.setPassword(this.rabbitMqPassword);
+        factory.setVirtualHost("/");
+        Connection connection = null;
+        try {
+            connection = factory.newConnection();
+            Channel channel = connection.createChannel();
+            String exchange = "test_dlx_exchange";
+            String routingKey = "dlx.save";
+
+            String msg = "Hello RabbitMQ DLX Message";
+
+            AMQP.BasicProperties properties = new AMQP.BasicProperties.Builder()
+                    .deliveryMode(2)
+                    .contentEncoding("UTF-8")
+                    .expiration("10000")
+                    .build();
+            //发送消息
+            channel.basicPublish(exchange, routingKey, true, properties, msg.getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {

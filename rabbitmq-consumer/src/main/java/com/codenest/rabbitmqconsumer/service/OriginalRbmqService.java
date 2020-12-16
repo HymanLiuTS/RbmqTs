@@ -21,4 +21,6 @@ public interface OriginalRbmqService {
 
     public void getFanoutInfoMsg() throws IOException;
 
+    public void deployedDLXQueue() throws IOException;
+
 }

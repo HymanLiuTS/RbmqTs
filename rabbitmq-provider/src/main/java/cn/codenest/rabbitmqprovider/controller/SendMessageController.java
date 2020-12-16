@@ -63,4 +63,10 @@ public class SendMessageController {
         return "OK";
     }
 
+    @GetMapping("/sendExpireMessage")
+    public String sendExpireMessage() throws IOException, TimeoutException {
+        originalRbmqService.sendExpireMessage();
+        return "OK";
+    }
+
 }
